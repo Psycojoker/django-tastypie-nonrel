@@ -1,6 +1,8 @@
 from django.conf.urls.defaults import url
 from django.core.exceptions import ObjectDoesNotExist
 from tastypie.resources import ModelResource
+from tastypie.fields import CharField, DateTimeField, BooleanField, FloatField, IntegerField, FileField
+from tastypie_nonrel.fields import DictField, ListField, EmbeddedModelField
 from tastypie.http import HttpGone, HttpCreated, HttpAccepted
 from tastypie.utils import trailing_slash, dict_strip_unicode_keys
 from tastypie.exceptions import ImmediateHttpResponse, NotFound
@@ -14,6 +16,39 @@ class MongoResource(ModelResource):
         resource = field.to_class()
         request_type = kwargs.pop('request_type')
         return resource.dispatch(request_type, request, **kwargs)
+
+
+    @classmethod
+    def api_field_from_django_field(cls, f, default=CharField):
+        """
+        Returns the field type that would likely be associated with each
+        Django type.
+        """
+        result = default
+
+        if f.get_internal_type() in ('DateField', 'DateTimeField'):
+            result = DateTimeField
+        elif f.get_internal_type() in ('BooleanField', 'NullBooleanField'):
+            result = BooleanField
+        elif f.get_internal_type() in ('DecimalField', 'FloatField'):
+            result = FloatField
+        elif f.get_internal_type() in ('IntegerField', 'PositiveIntegerField', 'PositiveSmallIntegerField', 'SmallIntegerField'):
+            result = IntegerField
+        elif f.get_internal_type() in ('FileField', 'ImageField'):
+            result = FileField
+        elif f.get_internal_type() == 'DictField':
+            result = DictField
+        elif f.get_internal_type() == 'ListField':
+            result = ListField
+        # TODO: Perhaps enable these via introspection. The reason they're not enabled
+        #       by default is the very different ``__init__`` they have over
+        #       the other fields.
+        # elif f.get_internal_type() == 'ForeignKey':
+        #     result = ForeignKey
+        # elif f.get_internal_type() == 'ManyToManyField':
+        #     result = ManyToManyField
+
+        return result
 
 
     def base_urls(self):
