@@ -1,6 +1,5 @@
 from django.conf.urls.defaults import url
 from django.core.exceptions import ObjectDoesNotExist
-from django.core.urlresolvers import reverse
 from tastypie.resources import ModelResource
 from tastypie.http import *
 from tastypie.utils import trailing_slash, dict_strip_unicode_keys
