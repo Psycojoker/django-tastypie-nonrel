@@ -44,7 +44,7 @@ class MongoListResource(ModelResource):
     """An embedded MongoDB list acting as a collection. Used in conjunction with
        a EmbeddedCollection.
     """
-    
+
     def __init__(self, parent=None, attribute=None, api_name=None):
         self.parent = parent
         self.attribute = attribute
@@ -67,7 +67,7 @@ class MongoListResource(ModelResource):
             return self.parent.cached_obj_get(request=request, **filters)
         except ObjectDoesNotExist:
             raise ImmediateHttpResponse(response=HttpGone())
-                                    
+
 
     def remove_api_resource_names(self, url_dict):
         kwargs_subset = url_dict.copy()
@@ -77,7 +77,7 @@ class MongoListResource(ModelResource):
                 del(kwargs_subset[key])
             except KeyError:
                 pass
-        
+
         return kwargs_subset
 
     def get_object_list(self, request):
@@ -134,17 +134,17 @@ class MongoListResource(ModelResource):
         """
         Either updates an existing resource or creates a new one with the
         provided data.
-        
+
         Calls ``obj_update`` with the provided data first, but falls back to
         ``obj_create`` if the object does not already exist.
-        
+
         If a new resource is created, return ``HttpCreated`` (201 Created).
         If an existing resource is modified, return ``HttpAccepted`` (204 No Content).
         """
         deserialized = self.deserialize(request, request.raw_post_data, format=request.META.get('CONTENT_TYPE', 'application/json'))
         bundle = self.build_bundle(data=dict_strip_unicode_keys(deserialized))
         self.is_valid(bundle, request)
-        
+
         try:
             updated_bundle = self.obj_update(bundle, request=request, **kwargs)
             return HttpAccepted()
@@ -178,4 +178,3 @@ class MongoListResource(ModelResource):
                                        kwargs=kwargs)
 
         return ret
-            
