@@ -1,7 +1,7 @@
 from django.conf.urls.defaults import url
 from django.core.exceptions import ObjectDoesNotExist
 from tastypie.resources import ModelResource
-from tastypie.http import *
+from tastypie.http import HttpGone, HttpCreated, HttpAccepted
 from tastypie.utils import trailing_slash, dict_strip_unicode_keys
 from tastypie.exceptions import ImmediateHttpResponse, NotFound
 from tastypie.bundle import Bundle
