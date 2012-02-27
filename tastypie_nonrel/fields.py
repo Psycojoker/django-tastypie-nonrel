@@ -1,6 +1,6 @@
-from tastypie.fields import (ApiField, 
-                             ToOneField, 
-                             ToManyField, 
+from tastypie.fields import (ApiField,
+                             ToOneField,
+                             ToManyField,
                              ApiFieldError,
                              NOT_PROVIDED,)
 from tastypie.bundle import Bundle
@@ -20,7 +20,7 @@ class ListField(ApiField):
     def convert(self, value):
         if value is None:
             return None
-        return value 
+        return value
 
 class EmbeddedListField(ToManyField):
     """
@@ -33,15 +33,15 @@ class EmbeddedListField(ToManyField):
     is_m2m = False
 
     def __init__(self, of, attribute, related_name=None, default=NOT_PROVIDED, null=False, blank=False, readonly=False, full=False, unique=False, help_text=None):
-        super(EmbeddedListField, self).__init__(to=of, 
+        super(EmbeddedListField, self).__init__(to=of,
                                                  attribute=attribute,
                                                  related_name=related_name,
-                                                 # default=default, 
-                                                 null=null, 
-                                                 # blank=blank, 
-                                                 # readonly=readonly, 
-                                                 full=full, 
-                                                 unique=unique, 
+                                                 # default=default,
+                                                 null=null,
+                                                 # blank=blank,
+                                                 # readonly=readonly,
+                                                 full=full,
+                                                 unique=unique,
                                                  help_text=help_text)
     def dehydrate(self, bundle):
         if not bundle.obj or not bundle.obj.pk:
@@ -69,7 +69,7 @@ class EmbeddedListField(ToManyField):
 
 class DictField(ApiField):
     dehydrated_type     =   'dict'
-    
+
     def dehydrate(self, obj):
         return self.convert(super(DictField, self).dehydrate(obj))
 
@@ -112,11 +112,11 @@ class EmbeddedModelField(ToOneField):
         created.
         """
         self.fk_resource = self.to_class()
-        
+
         # Try to hydrate the data provided.
         value = dict_strip_unicode_keys(value)
         self.fk_bundle = Bundle(data=value)
-            
+
         return self.fk_resource.full_hydrate(self.fk_bundle)
 
 class EmbeddedCollection(ToManyField):
@@ -128,15 +128,15 @@ class EmbeddedCollection(ToManyField):
     is_m2m = False
 
     def __init__(self, of, attribute, related_name=None, default=NOT_PROVIDED, null=False, blank=False, readonly=False, full=False, unique=False, help_text=None):
-        super(EmbeddedCollection, self).__init__(to=of, 
+        super(EmbeddedCollection, self).__init__(to=of,
                                                  attribute=attribute,
                                                  related_name=related_name,
-                                                 # default=default, 
-                                                 null=null, 
-                                                 # blank=blank, 
-                                                 # readonly=readonly, 
-                                                 full=full, 
-                                                 unique=unique, 
+                                                 # default=default,
+                                                 null=null,
+                                                 # blank=blank,
+                                                 # readonly=readonly,
+                                                 full=full,
+                                                 unique=unique,
                                                  help_text=help_text)
 
     def dehydrate(self, bundle):
@@ -169,4 +169,3 @@ class EmbeddedCollection(ToManyField):
     def to_class(self):
         base = super(EmbeddedCollection, self).to_class
         return lambda: base(self._resource(), self.instance_name)
-    
