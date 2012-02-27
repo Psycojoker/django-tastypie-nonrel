@@ -1,4 +1,3 @@
-from tastypie import fields
 from tastypie.fields import (ApiField, 
                              ToOneField, 
                              ToManyField, 
