@@ -87,17 +87,17 @@ class EmbeddedModelField(ToOneField):
     is_related = False
     dehydrated_type     =   'embedded'
 
-    def __init__(self, embedded, attribute, null=False, help_text=None):
+    def __init__(self, *args, **kwargs):
         '''
             The ``embedded`` argument should point to a ``Resource`` class, NOT
             to a ``Model``. Required.
         '''
         super(EmbeddedModelField, self).__init__(
-                                                 to=embedded,
-                                                 attribute=attribute,
-                                                 null=null,
+                                                 to=kwargs["to"],
+                                                 attribute=kwargs['attribute'],
+                                                 null=kwargs.get("null", False),
                                                  full=True,
-                                                 help_text=help_text,
+                                                 help_text=kwargs.get('help_text'),
                                                 )
     def dehydrate(self, obj):
         return super(EmbeddedModelField, self).dehydrate(obj).data

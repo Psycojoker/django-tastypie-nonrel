@@ -40,6 +40,8 @@ class MongoResource(ModelResource):
             result = DictField
         elif f.get_internal_type() == 'ListField':
             result = ListField
+        elif f.get_internal_type() == 'EmbeddedModelField':
+            result = EmbeddedModelField
         # TODO: Perhaps enable these via introspection. The reason they're not enabled
         #       by default is the very different ``__init__`` they have over
         #       the other fields.
@@ -49,6 +51,65 @@ class MongoResource(ModelResource):
         #     result = ManyToManyField
 
         return result
+
+
+    @classmethod
+    def get_fields(cls, fields=None, excludes=None):
+        """
+        Given any explicit fields to include and fields to exclude, add
+        additional fields based on the associated model.
+        """
+        final_fields = {}
+        fields = fields or []
+        excludes = excludes or []
+
+        if not cls._meta.object_class:
+            return final_fields
+
+        for f in cls._meta.object_class._meta.fields:
+            # If the field name is already present, skip
+            if f.name in cls.base_fields:
+                continue
+
+            # If field is not present in explicit field listing, skip
+            if fields and f.name not in fields:
+                continue
+
+            # If field is in exclude list, skip
+            if excludes and f.name in excludes:
+                continue
+
+            if cls.should_skip_field(f):
+                continue
+
+            api_field_class = cls.api_field_from_django_field(f)
+
+            kwargs = {
+                'attribute': f.name,
+                'help_text': f.help_text,
+            }
+
+            if f.null is True:
+                kwargs['null'] = True
+
+            kwargs['unique'] = f.unique
+
+            if not f.null and f.blank is True:
+                kwargs['default'] = ''
+
+            if f.get_internal_type() == 'TextField':
+                kwargs['default'] = ''
+
+            if f.has_default():
+                kwargs['default'] = f.default
+
+            if hasattr(f, 'embedded_model'):
+                kwargs["to"] = f.embedded_model
+
+            final_fields[f.name] = api_field_class(**kwargs)
+            final_fields[f.name].instance_name = f.name
+
+        return final_fields
 
 
     def base_urls(self):
