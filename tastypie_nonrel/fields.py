@@ -100,7 +100,7 @@ class EmbeddedModelField(ToOneField):
                                                  help_text=kwargs.get('help_text'),
                                                 )
     def dehydrate(self, obj):
-        return super(EmbeddedModelField, self).dehydrate(obj).data
+        return obj.obj.__class__.objects.filter(pk=obj.obj.pk).values()[0]
 
     def hydrate(self, bundle):
         return super(EmbeddedModelField, self).hydrate(bundle).obj
