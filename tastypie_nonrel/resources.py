@@ -2,7 +2,7 @@ from django.conf.urls.defaults import url
 from django.core.exceptions import ObjectDoesNotExist
 from tastypie.resources import ModelResource
 from tastypie.fields import CharField, DateTimeField, BooleanField, FloatField, IntegerField, FileField
-from tastypie_nonrel.fields import DictField, ListField, EmbeddedModelField
+from tastypie_nonrel.fields import DictField, ListField, EmbeddedModelField, EmbeddedListField
 from tastypie.http import HttpGone, HttpCreated, HttpAccepted
 from tastypie.utils import trailing_slash, dict_strip_unicode_keys
 from tastypie.exceptions import ImmediateHttpResponse, NotFound
@@ -40,6 +40,8 @@ class MongoResource(ModelResource):
             result = DictField
         elif f.get_internal_type() == 'ListField':
             result = ListField
+            if hasattr(f.item_field, 'embedded_model'):
+                result = EmbeddedListField
         elif f.get_internal_type() == 'EmbeddedModelField':
             result = EmbeddedModelField
         # TODO: Perhaps enable these via introspection. The reason they're not enabled
@@ -105,6 +107,8 @@ class MongoResource(ModelResource):
 
             if hasattr(f, 'embedded_model'):
                 kwargs["to"] = f.embedded_model
+            elif hasattr(f, 'item_field') and hasattr(f.item_field, 'embedded_model'):
+                kwargs["of"] = f.item_field.embedded_model
 
             final_fields[f.name] = api_field_class(**kwargs)
             final_fields[f.name].instance_name = f.name
