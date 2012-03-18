@@ -22,6 +22,59 @@ class ListField(ApiField):
             return None
         return value
 
+class ForeignKeysListField(ToManyField):
+    """
+        Represents a list of embedded objects. It must be used in conjunction
+        with EmbeddedModelField.
+        Does not allow for manipulation (reordering) of List elements. Use
+        EmbeddedCollection instead.
+    """
+    is_related = False
+    is_m2m = False
+
+    def __init__(self, of, attribute, related_name=None, default=NOT_PROVIDED, null=False, blank=False, readonly=False, full=False, unique=False, help_text=None):
+        super(ForeignKeysListField, self).__init__(to=of,
+                                                 attribute=attribute,
+                                                 related_name=related_name,
+                                                 # default=default,
+                                                 null=null,
+                                                 # blank=blank,
+                                                 # readonly=readonly,
+                                                 full=full,
+                                                 unique=unique,
+                                                 help_text=help_text)
+
+    def dehydrate(self, bundle):
+        print 1
+        if not bundle.obj or not bundle.obj.pk:
+            print 2
+            if not self.null:
+                raise ApiFieldError("The model '%r' does not have a primary key and can not be d in a ToMany context." % bundle.obj)
+            return []
+        if not getattr(bundle.obj, self.attribute):
+            print 3
+            if not self.null:
+                raise ApiFieldError("The model '%r' has an empty attribute '%s' and doesn't all a null value." % (bundle.obj, self.attribute))
+            return []
+        self.m2m_resources = []
+        m2m_dehydrated = []
+        # TODO: Also model-specific and leaky. Relies on there being a
+        # ``Manager`` there.
+        # NOTE: only had to remove .all()
+        print 4
+        for m2m in getattr(bundle.obj, self.attribute):
+            print 5
+            m2m_resource = self.get_related_resource(m2m)
+            m2m_bundle = Bundle(obj=m2m)
+            self.m2m_resources.append(m2m_resource)
+            # youhou, dirty hack again baby!
+            m2m_bundle.obj = type("DummyContainer", (object,), {'pk': m2m_bundle.obj})
+            m2m_dehydrated.append(self.dehydrate_related(m2m_bundle, m2m_resource))
+        return m2m_dehydrated
+
+    def hydrate(self, bundle):
+        return [b.obj for b in self.hydrate_m2m(bundle)]
+
 class EmbeddedListField(ToManyField):
     """
         Represents a list of embedded objects. It must be used in conjunction
