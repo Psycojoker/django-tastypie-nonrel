@@ -1,3 +1,7 @@
+Note: this is a forked version of tastypie-nonrel tuned to fit my needs (and actually to
+make it work). Use it at your own risk, to be honest I'm very far away from understanding
+what is really going on down there.
+
 This is an extension of django-tastypie (https://github.com/toastdriven/django-tastypie/)
 to support django-nonrel (http://www.allbuttonspressed.com/projects/django-nonrel)
 the fork of django with nonrelational backends, and MongoDB in particular. 
