@@ -14,7 +14,7 @@ class ListField(ApiField):
     """
     dehydrated_type     =   'list'
 
-    def dehydrate(self, obj):
+    def dehydrate(self, obj, for_list=False):
         return self.convert(super(ListField, self).dehydrate(obj))
 
     def convert(self, value):
@@ -44,7 +44,7 @@ class ForeignKeysListField(ToManyField):
                                                  unique=unique,
                                                  help_text=help_text)
 
-    def dehydrate(self, bundle):
+    def dehydrate(self, bundle, for_list=False):
         print 1
         if not bundle.obj or not bundle.obj.pk:
             print 2
@@ -98,7 +98,7 @@ class EmbeddedListField(ToManyField):
                                                  help_text=kwargs.get("help_text", None)
                                                )
 
-    def dehydrate(self, bundle):
+    def dehydrate(self, bundle, for_list=False):
         return [i.__class__.objects.filter(pk=i.pk).values()[0] for i in getattr(bundle.obj, self.attribute)]
 
     def hydrate(self, bundle):
@@ -107,7 +107,7 @@ class EmbeddedListField(ToManyField):
 class DictField(ApiField):
     dehydrated_type     =   'dict'
 
-    def dehydrate(self, obj):
+    def dehydrate(self, obj, for_list=False):
         return self.convert(super(DictField, self).dehydrate(obj))
 
     def convert(self, value):
@@ -135,7 +135,7 @@ class EmbeddedModelField(ToOneField):
                                                  full=True,
                                                  help_text=kwargs.get('help_text'),
                                                 )
-    def dehydrate(self, obj):
+    def dehydrate(self, obj, for_list=False):
         return obj.obj.__class__.objects.filter(pk=obj.obj.pk).values()[0]
 
     def hydrate(self, bundle):
@@ -176,7 +176,7 @@ class EmbeddedCollection(ToManyField):
                                                  unique=unique,
                                                  help_text=help_text)
 
-    def dehydrate(self, bundle):
+    def dehydrate(self, bundle, for_list=False):
         if not bundle.obj or not bundle.obj.pk:
             if not self.null:
                 raise ApiFieldError("The model '%r' does not have a primary key and can not be d in a ToMany context." % bundle.obj)
